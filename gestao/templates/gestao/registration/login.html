@@ -1,0 +1,89 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Gestão Negócio</title>
+
+    <link rel="stylesheet" href="{% static 'gestao/css/style.css' %}">
+</head>
+
+<body class="pagina-login">
+
+    <main class="login-container">
+
+        <div class="login-card">
+
+            <div class="login-cabecalho">
+                <div class="login-icone">▣</div>
+
+                <h1>Gestão Negócio</h1>
+
+                <p>Entre com seus dados para acessar o sistema</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="login-erro">
+                    Usuário ou senha incorretos. Tente novamente.
+                </div>
+            {% endif %}
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <div class="login-erro">
+                        Sua conta não possui permissão para acessar esta página.
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+                <div class="campo-login">
+                    <label for="id_username">Usuário</label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        placeholder="Digite seu usuário"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="campo-login">
+                    <label for="id_password">Senha</label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="botao-login">
+                    Entrar no sistema
+                </button>
+
+            </form>
+
+            <div class="login-rodape">
+                <p>Sistema de Gestão de Negócios</p>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
