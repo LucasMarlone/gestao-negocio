@@ -1,0 +1,449 @@
+
+/* =========================================
+   GESTÃO NEGÓCIO - ESTILO PRINCIPAL
+   ========================================= */
+
+/* CONFIGURAÇÕES GERAIS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --azul-escuro: #172554;
+    --azul-principal: #2563eb;
+    --azul-hover: #1d4ed8;
+    --fundo: #f1f5f9;
+    --branco: #ffffff;
+    --texto: #1e293b;
+    --texto-secundario: #64748b;
+    --borda: #e2e8f0;
+    --vermelho: #dc2626;
+    --verde: #16a34a;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--fundo);
+    color: var(--texto);
+    line-height: 1.6;
+}
+
+/* =========================================
+   CABEÇALHO E MENU
+   ========================================= */
+
+.cabecalho {
+    background-color: var(--azul-escuro);
+    color: var(--branco);
+    padding: 15px 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.container-cabecalho {
+    max-width: 1400px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.logo {
+    color: var(--branco);
+    font-size: 21px;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.menu-navegacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.menu-navegacao a {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.menu-navegacao a:hover {
+    color: var(--branco);
+}
+
+.usuario-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.usuario-nome {
+    font-size: 13px;
+    color: #e2e8f0;
+}
+
+.botao-sair,
+.botao-entrar {
+    background-color: var(--azul-principal);
+    color: var(--branco);
+    border: none;
+    border-radius: 6px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.botao-sair:hover,
+.botao-entrar:hover {
+    background-color: var(--azul-hover);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--branco);
+    font-size: 27px;
+    cursor: pointer;
+}
+
+/* =========================================
+   CONTEÚDO PRINCIPAL
+   ========================================= */
+
+.conteudo-principal {
+    width: 100%;
+    max-width: 1400px;
+    min-height: 75vh;
+    margin: 30px auto;
+    padding: 0 25px;
+}
+
+/* =========================================
+   TÍTULOS
+   ========================================= */
+
+h1, h2, h3, h4 {
+    color: var(--azul-escuro);
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 28px;
+}
+
+h2 {
+    font-size: 23px;
+}
+
+h3 {
+    font-size: 19px;
+}
+
+/* =========================================
+   BOTÕES
+   ========================================= */
+
+button,
+.botao {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button[type="submit"],
+.botao {
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover,
+.botao:hover {
+    filter: brightness(0.93);
+}
+
+/* =========================================
+   CAMPOS E FORMULÁRIOS
+   ========================================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    background-color: var(--branco);
+    color: var(--texto);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--azul-principal);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* =========================================
+   TABELAS
+   ========================================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--branco);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th {
+    background-color: var(--azul-escuro);
+    color: var(--branco);
+    padding: 13px;
+    text-align: left;
+    font-size: 13px;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid var(--borda);
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* =========================================
+   MENSAGENS DO SISTEMA
+   ========================================= */
+
+.mensagens {
+    margin-bottom: 20px;
+}
+
+.mensagem {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.mensagem.success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.mensagem.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.mensagem.warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* =========================================
+   RODAPÉ
+   ========================================= */
+
+.rodape {
+    background-color: var(--branco);
+    border-top: 1px solid var(--borda);
+    padding: 20px;
+    text-align: center;
+    color: var(--texto-secundario);
+    font-size: 13px;
+    margin-top: 40px;
+}
+
+/* =========================================
+   TELA DE LOGIN
+   ========================================= */
+
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #172554, #2563eb);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card {
+    background-color: var(--branco);
+    padding: 38px;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.login-cabecalho {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.login-icone {
+    font-size: 45px;
+    margin-bottom: 10px;
+    color: var(--azul-principal);
+}
+
+.login-cabecalho h1 {
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.login-cabecalho p {
+    color: var(--texto-secundario);
+    font-size: 13px;
+}
+
+.campo-login {
+    margin-bottom: 20px;
+}
+
+.campo-login label {
+    color: var(--texto);
+}
+
+.campo-login input {
+    padding: 13px;
+}
+
+.botao-login {
+    width: 100%;
+    padding: 13px;
+    background-color: var(--azul-principal);
+    color: var(--branco);
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.botao-login:hover {
+    background-color: var(--azul-hover);
+}
+
+.login-erro {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.login-rodape {
+    text-align: center;
+    margin-top: 25px;
+    color: var(--texto-secundario);
+    font-size: 12px;
+}
+
+/* =========================================
+   RESPONSIVIDADE PARA CELULARES
+   ========================================= */
+
+@media (max-width: 900px) {
+
+    .container-cabecalho {
+        flex-wrap: wrap;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .menu-navegacao {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .menu-navegacao.menu-aberto {
+        display: flex;
+    }
+
+    .menu-navegacao a {
+        padding: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .usuario-area {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .conteudo-principal {
+        padding: 0 15px;
+        margin-top: 20px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .cabecalho {
+        padding: 13px 15px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    .login-card {
+        padding: 25px 20px;
+    }
+
+    .login-cabecalho h1 {
+        font-size: 23px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    .conteudo-principal {
+        padding: 0 10px;
+    }
+}
