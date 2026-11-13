@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .operacoes import executar_operacao_unica
-
 from .forms import (
     AjusteEstoqueForm,
     CancelamentoVendaForm,
@@ -44,6 +43,38 @@ from .services import (
     registrar_recebimento_venda,
     registrar_reembolso_venda,
 )
+
+
+# Número padrão de registros exibidos em cada página das listagens.
+ITENS_POR_PAGINA = 10
+
+
+def _paginar(request, queryset, por_pagina=ITENS_POR_PAGINA):
+    """Retorna uma página válida sem quebrar quando o número é inválido."""
+    paginator = Paginator(queryset, por_pagina)
+    return paginator.get_page(request.GET.get("page"))
+
+
+def _ler_periodo(request):
+    """Lê os filtros de data usados nas listagens de vendas e caixa."""
+    inicio = request.GET.get("inicio", "").strip()
+    fim = request.GET.get("fim", "").strip()
+    data_inicio = None
+    data_fim = None
+    erro = ""
+
+    try:
+        if inicio:
+            data_inicio = date.fromisoformat(inicio)
+        if fim:
+            data_fim = date.fromisoformat(fim)
+    except ValueError:
+        erro = "Informe datas válidas para o período."
+
+    if not erro and data_inicio and data_fim and data_inicio > data_fim:
+        erro = "A data inicial não pode ser posterior à data final."
+
+    return inicio, fim, data_inicio, data_fim, erro
 
 
 @staff_member_required
@@ -163,26 +194,29 @@ def dashboard(request):
 @staff_member_required
 def lista_produtos(request):
     busca = request.GET.get("busca", "").strip()
-
     produtos = Produto.objects.all()
 
     if busca:
         produtos = produtos.filter(
-            Q(nome__icontains=busca)
-            | Q(codigo__icontains=busca)
+            Q(nome__icontains=busca) | Q(codigo__icontains=busca)
         )
 
     produtos = produtos.order_by("nome", "id")
+    pagina = _paginar(request, produtos)
 
     return render(
         request,
         "gestao/produtos.html",
         {
-            "produtos": produtos,
+            "produtos": pagina,
+            "pagina": pagina,
+            "page_obj": pagina,
+            "paginator": pagina.paginator,
+            "is_paginated": pagina.has_other_pages(),
+            "total_registros": pagina.paginator.count,
             "busca": busca,
         },
     )
-
 
 @staff_member_required
 def novo_produto(request):
@@ -268,7 +302,6 @@ def editar_produto(request, pk):
 @staff_member_required
 def lista_clientes(request):
     busca = request.GET.get("busca", "").strip()
-
     clientes = Cliente.objects.all()
 
     if busca:
@@ -279,16 +312,21 @@ def lista_clientes(request):
         )
 
     clientes = clientes.order_by("nome", "id")
+    pagina = _paginar(request, clientes)
 
     return render(
         request,
         "gestao/clientes.html",
         {
-            "clientes": clientes,
+            "clientes": pagina,
+            "pagina": pagina,
+            "page_obj": pagina,
+            "paginator": pagina.paginator,
+            "is_paginated": pagina.has_other_pages(),
+            "total_registros": pagina.paginator.count,
             "busca": busca,
         },
     )
-
 
 @staff_member_required
 def novo_cliente(request):
@@ -353,31 +391,49 @@ def editar_cliente(request, pk):
 @staff_member_required
 def lista_vendas(request):
     busca = request.GET.get("busca", "").strip()
+    status = request.GET.get("status", "").strip()
+    inicio, fim, data_inicio, data_fim, erro_periodo = _ler_periodo(request)
 
     vendas = (
-        Venda.objects.select_related(
-            "cliente",
-            "cancelada_por",
-        )
+        Venda.objects.select_related("cliente", "cancelada_por")
         .prefetch_related("itens")
         .order_by("-data", "-id")
     )
 
     if busca:
         filtro = Q(cliente__nome__icontains=busca)
-
+        # Também permite pesquisar pelo número/ID da venda.
         if busca.isascii() and busca.isdecimal():
             numero_texto = busca.lstrip("0") or "0"
-
             if len(numero_texto) <= 19:
                 numero = int(numero_texto)
-
                 if numero <= 9223372036854775807:
                     filtro |= Q(pk=numero)
-
         vendas = vendas.filter(filtro)
 
-    for venda in vendas:
+    if erro_periodo:
+        messages.error(request, erro_periodo)
+        vendas = vendas.none()
+    else:
+        if data_inicio:
+            vendas = vendas.filter(data__date__gte=data_inicio)
+        if data_fim:
+            vendas = vendas.filter(data__date__lte=data_fim)
+
+    # Valores aceitos: pendente, confirmada ou cancelada.
+    if status == "pendente":
+        vendas = vendas.filter(confirmada=False, cancelada=False)
+    elif status == "confirmada":
+        vendas = vendas.filter(confirmada=True, cancelada=False)
+    elif status == "cancelada":
+        vendas = vendas.filter(cancelada=True)
+    else:
+        status = ""
+
+    pagina = _paginar(request, vendas)
+
+    # Calcula o total somente das vendas exibidas nesta página.
+    for venda in pagina.object_list:
         venda.total_calculado = sum(
             (
                 item.quantidade * item.preco_unitario
@@ -390,11 +446,19 @@ def lista_vendas(request):
         request,
         "gestao/vendas.html",
         {
-            "vendas": vendas,
+            "vendas": pagina,
+            "pagina": pagina,
+            "page_obj": pagina,
+            "paginator": pagina.paginator,
+            "is_paginated": pagina.has_other_pages(),
+            "total_registros": pagina.paginator.count,
             "busca": busca,
+            "status": status,
+            "inicio": inicio,
+            "fim": fim,
+            "erro_periodo": erro_periodo,
         },
     )
-
 
 @staff_member_required
 def nova_venda(request):
@@ -846,6 +910,7 @@ def cancelar_venda(request, pk):
 def lista_caixa(request):
     busca = request.GET.get("busca", "").strip()
     tipo = request.GET.get("tipo", "").strip()
+    inicio, fim, data_inicio, data_fim, erro_periodo = _ler_periodo(request)
 
     if tipo not in ("entrada", "saida"):
         tipo = ""
@@ -853,42 +918,54 @@ def lista_caixa(request):
     movimentos = MovimentoCaixa.objects.all()
 
     if busca:
-        movimentos = movimentos.filter(
-            descricao__icontains=busca,
-        )
+        movimentos = movimentos.filter(descricao__icontains=busca)
 
     if tipo:
         movimentos = movimentos.filter(tipo=tipo)
 
+    if erro_periodo:
+        messages.error(request, erro_periodo)
+        movimentos = movimentos.none()
+    else:
+        if data_inicio:
+            movimentos = movimentos.filter(data__gte=data_inicio)
+        if data_fim:
+            movimentos = movimentos.filter(data__lte=data_fim)
+
     movimentos = movimentos.order_by("-data", "-id")
 
+    # Os totais consideram todos os resultados filtrados, não apenas a página.
     entradas = sum(
-        movimentos.filter(
-            tipo="entrada",
-        ).values_list("valor", flat=True),
+        movimentos.filter(tipo="entrada").values_list("valor", flat=True),
+        Decimal("0.00"),
+    )
+    saidas = sum(
+        movimentos.filter(tipo="saida").values_list("valor", flat=True),
         Decimal("0.00"),
     )
 
-    saidas = sum(
-        movimentos.filter(
-            tipo="saida",
-        ).values_list("valor", flat=True),
-        Decimal("0.00"),
-    )
+    pagina = _paginar(request, movimentos)
 
     return render(
         request,
         "gestao/caixa.html",
         {
-            "movimentos": movimentos,
+            "movimentos": pagina,
+            "pagina": pagina,
+            "page_obj": pagina,
+            "paginator": pagina.paginator,
+            "is_paginated": pagina.has_other_pages(),
+            "total_registros": pagina.paginator.count,
             "busca": busca,
             "tipo": tipo,
+            "inicio": inicio,
+            "fim": fim,
+            "erro_periodo": erro_periodo,
             "entradas": entradas,
             "saidas": saidas,
             "saldo": entradas - saidas,
         },
     )
-
 
 @staff_member_required
 def novo_movimento(request):
