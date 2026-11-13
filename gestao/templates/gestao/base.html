@@ -1,0 +1,107 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Sistema de Gestão{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'gestao/css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <div class="container-cabecalho">
+
+            <a href="{% url 'dashboard' %}" class="logo">
+                Gestão Negócio
+            </a>
+
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                onclick="document.querySelector('.menu-navegacao').classList.toggle('menu-aberto'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') !== 'true');"
+            >
+                ☰
+            </button>
+
+            <nav class="menu-navegacao" aria-label="Menu principal">
+
+                <a href="{% url 'dashboard' %}">Início</a>
+
+                <a href="{% url 'lista_produtos' %}">Produtos</a>
+
+                <a href="{% url 'lista_clientes' %}">Clientes</a>
+
+                <a href="{% url 'lista_vendas' %}">Vendas</a>
+
+                <a href="{% url 'lista_caixa' %}">Caixa</a>
+
+                <a href="{% url 'entradas_estoque' %}">Entradas</a>
+
+                <a href="{% url 'historico_estoque' %}">Histórico de estoque</a>
+
+                <a href="{% url 'ajuste_estoque' %}">Ajustar estoque</a>
+
+            </nav>
+
+            <div class="usuario-area">
+
+                {% if user.is_authenticated %}
+
+                    <span class="usuario-nome">
+                        Olá, {{ user.username }}
+                    </span>
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="botao-sair">
+                            Sair
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <a href="{% url 'login' %}" class="botao-entrar">
+                        Entrar
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+    </header>
+
+    <main class="conteudo-principal">
+
+        {% if messages %}
+            <div class="mensagens">
+                {% for message in messages %}
+                    <div class="mensagem {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <footer class="rodape">
+        <p>Sistema de Gestão de Negócios</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
