@@ -419,13 +419,20 @@ def lista_vendas(request):
             ),
             Decimal("0.00"),
         )
+        paginador = Paginator(vendas, 10)
+    pagina = paginador.get_page(request.GET.get("page"))
 
+    filtros = request.GET.copy()
+    filtros.pop("page", None)
     return render(
         request,
-        "gestao/vendas.html",
+       "gestao/vendas.html",
         {
             "vendas": vendas,
             "busca": busca,
+             "pagina": pagina,
+            "total_vendas": paginador.count,
+            "filtros_url": filtros.urlencode(),
         },
     )
 
