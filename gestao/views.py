@@ -306,13 +306,20 @@ def lista_clientes(request):
         )
 
     clientes = clientes.order_by("nome", "id")
+       paginador = Paginator(clientes, 10)
+    pagina = paginador.get_page(request.GET.get("page"))
 
+    filtros = request.GET.copy()
+    filtros.pop("page", None)
     return render(
         request,
         "gestao/clientes.html",
         {
             "clientes": clientes,
             "busca": busca,
+            "pagina": pagina,
+            "total_clientes": paginador.count,
+            "filtros_url": filtros.urlencode(),
         },
     )
 
