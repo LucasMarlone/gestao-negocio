@@ -916,7 +916,12 @@ def lista_caixa(request):
         ).values_list("valor", flat=True),
         Decimal("0.00"),
     )
+    paginador = Paginator(movimentos, 10)
+    pagina = paginador.get_page(request.GET.get("page"))
 
+    filtros = request.GET.copy()
+    filtros.pop("page", None)
+    
     return render(
         request,
         "gestao/caixa.html",
@@ -927,6 +932,9 @@ def lista_caixa(request):
             "entradas": entradas,
             "saidas": saidas,
             "saldo": entradas - saidas,
+            "pagina": pagina,
+            "total_movimentos": paginador.count,
+            "filtros_url": filtros.urlencode(),
         },
     )
 
