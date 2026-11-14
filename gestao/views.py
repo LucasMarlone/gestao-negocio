@@ -3,6 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.auth.views import LoginView
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
@@ -44,8 +45,23 @@ from .services import (
     registrar_recebimento_venda,
     registrar_reembolso_venda,
 )
+from .services import (
+    ajustar_estoque,
+    cancelar_venda_com_estoque,
+    confirmar_venda_com_estoque,
+    registrar_recebimento_venda,
+    registrar_reembolso_venda,
+)
 
+class LoginSistemaView(LoginView):
+    template_name = "gestao/login.html"
+    redirect_authenticated_user = False
 
+@require_POST
+def sair_sistema(request):
+    logout(request)
+    return redirect("login")
+    
 @staff_member_required
 def dashboard(request):
     inicio = request.GET.get("inicio", "").strip()
