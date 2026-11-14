@@ -273,6 +273,13 @@
             >
                 Gerenciar no painel
             </a>
+            <form method="post" action="{% url 'sair' %}">
+                {% csrf_token %}
+
+            <button type="submit" class="botao">
+                Sair do sistema
+            </button>
+        </form>    
         </nav>
 
         <form
