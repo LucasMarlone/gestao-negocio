@@ -190,12 +190,23 @@ def lista_produtos(request):
 
     produtos = produtos.order_by("nome", "id")
 
-    return render(
-        request,
-        "gestao/produtos.html",
-        {
-            "produtos": produtos,
-            "busca": busca,
+    paginador = Paginator(produtos, 10)
+
+    pagina = paginador.get_page(
+    request.GET.get("page")
+  )
+
+    filtros = request.GET.copy()
+    filtros.pop("page", None)
+return render(
+    request,
+    "gestao/produtos.html",
+    {
+        "produtos": pagina,
+        "busca": busca,
+        "pagina": pagina,
+        "total_produtos": paginador.count,
+        "filtros_url": filtros.urlencode(),
         },
     )
 
